@@ -12,14 +12,14 @@ public class TournamentStats {
     private static final int FIRST_NAME_SORTING = 1;
     private static final int LAST_NAME_SORTING = 2;
     private static final int SCORE_SORTING = 3;
+    private static final int ASCENDING_ORDER = 1;
 
     void run(Scanner scanner) {
         // tutaj dodaj swoje rozwiązanie
         // użyj przekazanego scannera do wczytywania wartości
-        List<Competitor> competitors = new ArrayList<>();
-        readCompetitors(scanner, competitors);
+        List<Competitor> competitors = readCompetitors(scanner);
 
-        if (competitors.size() > 0) {
+        if (!competitors.isEmpty()) {
             sortCompetitors(scanner, competitors);
 
             try {
@@ -31,14 +31,15 @@ public class TournamentStats {
         }
     }
 
-    private static void readCompetitors(Scanner scanner, List<Competitor> competitors) {
+    private static List<Competitor> readCompetitors(Scanner scanner) {
+        List<Competitor> competitors = new ArrayList<>();
         String[] competitorData;
         String input;
         do {
             System.out.println("Podaj wynik kolejnego gracza (lub stop):");
             input = scanner.nextLine();
             if (input != null && !input.equals("")) {
-                if (input.equals("stop")) {
+                if (input.equalsIgnoreCase("STOP")) {
                     break;
                 }
                 competitorData = input.split(" ");
@@ -50,7 +51,8 @@ public class TournamentStats {
             } else {
                 System.out.println("Nieprawidlowe dane zawodnika.");
             }
-        } while (!input.equals("stop"));
+        } while (!input.equalsIgnoreCase("STOP"));
+        return competitors;
     }
 
     private static void sortCompetitors(Scanner scanner, List<Competitor> competitors) {
@@ -62,21 +64,21 @@ public class TournamentStats {
         scanner.nextLine();
         switch (sortingParameter) {
             case FIRST_NAME_SORTING -> {
-                if (sortingOrder == 1) {
+                if (sortingOrder == ASCENDING_ORDER) {
                     competitors.sort(new FirstNameComparatorAscendingOrder());
                 } else {
                     competitors.sort(new FirstNameComparatorAscendingOrder().reversed());
                 }
             }
             case LAST_NAME_SORTING -> {
-                if (sortingOrder == 1) {
+                if (sortingOrder == ASCENDING_ORDER) {
                     competitors.sort(new LastNameComparatorAscendingOrder());
                 } else {
                     competitors.sort(new LastNameComparatorAscendingOrder().reversed());
                 }
             }
             case SCORE_SORTING -> {
-                if (sortingOrder == 1) {
+                if (sortingOrder == ASCENDING_ORDER) {
                     competitors.sort(new ScoreComparatorAscendingOrder());
                 } else {
                     competitors.sort(new ScoreComparatorAscendingOrder().reversed());
