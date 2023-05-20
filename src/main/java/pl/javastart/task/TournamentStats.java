@@ -13,22 +13,24 @@ public class TournamentStats {
     private static final int LAST_NAME_SORTING = 2;
     private static final int SCORE_SORTING = 3;
     private static final int ASCENDING_ORDER = 1;
+    private static final int DESCENDING_ORDER = 2;
 
     void run(Scanner scanner) {
         // tutaj dodaj swoje rozwiązanie
         // użyj przekazanego scannera do wczytywania wartości
         List<Competitor> competitors = readCompetitors(scanner);
 
-        if (!competitors.isEmpty()) {
-            sortCompetitors(scanner, competitors);
-
-            try {
-                writeToFile(competitors);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            System.out.println("Dane posortowano i zapisano do pliku stats.csv.");
+        if (competitors.isEmpty()) {
+            System.out.println("Brak danych do sortowania.");
+            return;
         }
+        sortCompetitors(scanner, competitors);
+        try {
+            writeToFile(competitors);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        System.out.println("Dane posortowano i zapisano do pliku stats.csv.");
     }
 
     private static List<Competitor> readCompetitors(Scanner scanner) {
@@ -55,44 +57,36 @@ public class TournamentStats {
         return competitors;
     }
 
-    private static void sortCompetitors(Scanner scanner, List<Competitor> competitors) {
-        System.out.println("Po jakim parametrze posortować? (1 - imię, 2 - nazwisko, 3 - wynik)");
+    private void sortCompetitors(Scanner scanner, List<Competitor> competitors) {
+        System.out.printf("Po jakim parametrze posortować? (%d - imię, %d - nazwisko, %d - wynik)\n",
+                FIRST_NAME_SORTING, LAST_NAME_SORTING, SCORE_SORTING);
         int sortingParameter = scanner.nextInt();
         scanner.nextLine();
-        System.out.println("Sortować rosnąco czy malejąco? (1 - rosnąco, 2 - malejąco)");
+        System.out.printf("Sortować rosnąco czy malejąco? (%d - rosnąco, %d - malejąco)\n",
+                ASCENDING_ORDER, DESCENDING_ORDER);
         int sortingOrder = scanner.nextInt();
         scanner.nextLine();
-        switch (sortingParameter) {
-            case FIRST_NAME_SORTING -> {
-                if (sortingOrder == ASCENDING_ORDER) {
-                    competitors.sort(new FirstNameComparatorAscendingOrder());
-                } else {
-                    competitors.sort(new FirstNameComparatorAscendingOrder().reversed());
-                }
-            }
-            case LAST_NAME_SORTING -> {
-                if (sortingOrder == ASCENDING_ORDER) {
-                    competitors.sort(new LastNameComparatorAscendingOrder());
-                } else {
-                    competitors.sort(new LastNameComparatorAscendingOrder().reversed());
-                }
-            }
-            case SCORE_SORTING -> {
-                if (sortingOrder == ASCENDING_ORDER) {
-                    competitors.sort(new ScoreComparatorAscendingOrder());
-                } else {
-                    competitors.sort(new ScoreComparatorAscendingOrder().reversed());
-                }
-            }
-            default -> System.out.println("opcja nieprawidlowa");
+        Comparator<Competitor> comparator = switch (sortingParameter) {
+            case FIRST_NAME_SORTING -> new FirstNameComparator();
+            case LAST_NAME_SORTING -> new LastNameComparator();
+            case SCORE_SORTING -> new ScoreComparator();
+            default -> null;
+        };
+        if (comparator == null) {
+            System.out.println("opcja nieprawidlowa");
+            return;
         }
+        if (sortingOrder != ASCENDING_ORDER) {
+            comparator = comparator.reversed();
+        }
+        competitors.sort(comparator);
     }
 
     private void writeToFile(List<Competitor> competitors) throws IOException {
         File file = new File("stats.csv");
         try (FileWriter fileWriter = new FileWriter("stats.csv")) {
             for (Competitor competitor : competitors) {
-                fileWriter.write(competitor.getFirstName() + " " + competitor.getLastName() + "; " + competitor.getScore() + "\n");
+                fileWriter.write(competitor.getFirstName() + " " + competitor.getLastName() + ";" + competitor.getScore() + "\n");
             }
         }
     }

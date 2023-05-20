@@ -4,9 +4,9 @@ import pl.javastart.task.Competitor;
 
 import java.util.Comparator;
 
-public class LastNameComparatorAscendingOrder implements Comparator<Competitor> {
-    @Override
+public class ScoreComparator implements Comparator<Competitor> {
     public int compare(Competitor c1, Competitor c2) {
-        return c1.getLastName().compareTo(c2.getLastName());
+        return Integer.compare(c1.getScore(), c2.getScore());
     }
 }
+
